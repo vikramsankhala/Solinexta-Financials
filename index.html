@@ -1,0 +1,1745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solinexta Financial Model & Valuation</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1a2c4a 100%);
+            color: #f1f5f9;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.1) 0%, rgba(14, 165, 233, 0.05) 100%);
+            border-radius: 16px;
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 50%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            color: #cbd5e1;
+            font-weight: 300;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #334155;
+        }
+
+        .tab-btn {
+            padding: 1rem 1.5rem;
+            background: none;
+            border: none;
+            color: #cbd5e1;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            position: relative;
+            top: 2px;
+        }
+
+        .tab-btn.active {
+            color: #38bdf8;
+            border-bottom-color: #38bdf8;
+        }
+
+        .tab-btn:hover {
+            color: #38bdf8;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        .card h3 {
+            color: #38bdf8;
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #334155;
+            padding-bottom: 0.75rem;
+        }
+
+        .metric {
+            margin-bottom: 1.5rem;
+        }
+
+        .metric-label {
+            font-size: 0.9rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #38bdf8;
+        }
+
+        .metric-subtext {
+            font-size: 0.85rem;
+            color: #cbd5e1;
+            margin-top: 0.25rem;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-bottom: 2rem;
+        }
+
+        .table-scroll {
+            overflow-x: auto;
+            margin-bottom: 2rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #1e293b;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th {
+            background: #0f172a;
+            color: #38bdf8;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #334155;
+        }
+
+        td {
+            padding: 0.875rem 1rem;
+            border-bottom: 1px solid #334155;
+            color: #cbd5e1;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: #334155;
+        }
+
+        .positive {
+            color: #10b981;
+        }
+
+        .negative {
+            color: #ef4444;
+        }
+
+        .highlight {
+            background: #334155;
+            font-weight: 600;
+            color: #f1f5f9;
+        }
+
+        .scenario-toggle {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .scenario-btn {
+            flex: 1;
+            padding: 0.75rem 1.5rem;
+            border: 2px solid #334155;
+            background: #1e293b;
+            color: #cbd5e1;
+            cursor: pointer;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .scenario-btn.active {
+            background: #38bdf8;
+            color: #0f172a;
+            border-color: #38bdf8;
+        }
+
+        .scenario-btn:hover {
+            border-color: #38bdf8;
+            color: #38bdf8;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            color: #38bdf8;
+            margin: 2rem 0 1rem;
+            border-left: 4px solid #38bdf8;
+            padding-left: 1rem;
+        }
+
+        .assumption-box {
+            background: #0f172a;
+            border-left: 4px solid #38bdf8;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+
+        .assumption-box h4 {
+            color: #38bdf8;
+            margin-bottom: 0.75rem;
+        }
+
+        .assumption-item {
+            display: flex;
+            justify-content: space-between;
+            color: #cbd5e1;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .legend {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+        }
+
+        .footer-note {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            margin-top: 2rem;
+            padding: 1rem;
+            background: #0f172a;
+            border-radius: 8px;
+            border-left: 4px solid #38bdf8;
+        }
+
+        .card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .tab-content.active {
+            animation: fadeIn 0.5s ease;
+        }
+
+        .metric-value {
+            background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+        }
+
+        .comparison-table th {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            padding: 1.25rem;
+            text-align: center;
+            font-weight: 600;
+            border: 1px solid #475569;
+        }
+
+        .comparison-table td {
+            padding: 1rem;
+            text-align: center;
+            border: 1px solid #334155;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: #1e293b;
+        }
+
+        .comparison-table tr:hover {
+            background: #334155;
+        }
+
+        .highlight-cell {
+            background: rgba(56, 189, 248, 0.2);
+            font-weight: 600;
+        }
+
+        .diagram-container {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+            border: 1px solid #334155;
+        }
+
+        .flow-diagram {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .flow-box {
+            background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
+            color: #0f172a;
+            padding: 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            min-width: 150px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+        }
+
+        .flow-arrow {
+            color: #38bdf8;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.1) 0%, rgba(14, 165, 233, 0.05) 100%);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #38bdf8;
+            margin: 0.5rem 0;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Solinexta Financial Model</h1>
+            <p>Current Valuation & 5-Year Projections (Series Seed & Beyond)</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('valuation')">Current Valuation</button>
+            <button class="tab-btn" onclick="switchTab('projections')">5-Year Projections</button>
+            <button class="tab-btn" onclick="switchTab('scenarios')">Scenario Analysis</button>
+            <button class="tab-btn" onclick="switchTab('use-of-funds')">Use of Funds</button>
+            <button class="tab-btn" onclick="switchTab('metrics')">KPI Metrics</button>
+            <button class="tab-btn" onclick="switchTab('competitors')">Competitor Analysis</button>
+        </div>
+
+        <!-- TAB 1: CURRENT VALUATION -->
+        <div id="valuation" class="tab-content active">
+            <h2 class="section-title">Series Seed Valuation (Current Round)</h2>
+
+            <div class="grid-2">
+                <div class="card">
+                    <h3>Pre-Money Valuation</h3>
+                    <div class="metric">
+                        <div class="metric-label">Pre-Money Valuation</div>
+                        <div class="metric-value">₹3.2–4.5 Cr</div>
+                        <div class="metric-subtext">Deep-tech seed benchmark (20x R&D spend)</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Post-Money Valuation</div>
+                        <div class="metric-value">₹11.2–16.5 Cr</div>
+                        <div class="metric-subtext">After ₹8–12 Cr Series Seed injection</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Valuation Methodology</h3>
+                    <div class="metric">
+                        <div class="metric-label">Primary Method</div>
+                        <div class="metric-value">VC Comparable</div>
+                        <div class="metric-subtext">20–40x R&D spend for deep-tech IP</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Comparable Baseline</div>
+                        <div class="metric-value">ideaForge, Cygni</div>
+                        <div class="metric-subtext">Indian deep-tech: 3.9–4.7x forward revenue</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="assumption-box">
+                <h4>Valuation Assumptions (Series Seed)</h4>
+                <div class="assumption-item">
+                    <span>Current Annual R&D Spend</span>
+                    <strong>₹15–25 L</strong>
+                </div>
+                <div class="assumption-item">
+                    <span>Deep-Tech IP Multiple</span>
+                    <strong>20–25x</strong>
+                </div>
+                <div class="assumption-item">
+                    <span>Platform Multiplier Discount</span>
+                    <strong>–15% (unique model)</strong>
+                </div>
+                <div class="assumption-item">
+                    <span>Investor Return Expectation (IRR)</span>
+                    <strong>35–50% (high-risk)</strong>
+                </div>
+                <div class="assumption-item">
+                    <span>Exit Multiple Target (5-year)</span>
+                    <strong>8–12x post-money valuation</strong>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="card">
+                    <h3>Equity Breakdown (Post-Money)</h3>
+                    <div class="metric">
+                        <div class="metric-label">New Investor Stake</div>
+                        <div class="metric-value">20–25%</div>
+                        <div class="metric-subtext">₹8–12 Cr injection for 20–25%</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Founder Dilution</div>
+                        <div class="metric-value">75–80%</div>
+                        <div class="metric-subtext">Founders retain majority control</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">ESOP Pool</div>
+                        <div class="metric-value">10–15%</div>
+                        <div class="metric-subtext">Reserved for talent acquisition</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Valuation Sensitivity</h3>
+                    <div class="metric">
+                        <div class="metric-label">Conservative Case</div>
+                        <div class="metric-value">₹2.5–3.2 Cr</div>
+                        <div class="metric-subtext">15x R&D spend (higher risk)</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Base Case</div>
+                        <div class="metric-value">₹3.2–4.5 Cr</div>
+                        <div class="metric-subtext">20–25x R&D (current offer)</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Upside Case</div>
+                        <div class="metric-value">₹5–6.5 Cr</div>
+                        <div class="metric-subtext">30x R&D (strong investor demand)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: 5-YEAR PROJECTIONS -->
+        <div id="projections" class="tab-content">
+            <h2 class="section-title">Financial Projections: Base Case (2026–2030)</h2>
+
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Year 1 (2026)</th>
+                            <th>Year 2 (2027)</th>
+                            <th>Year 3 (2028)</th>
+                            <th>Year 4 (2029)</th>
+                            <th>Year 5 (2030)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="highlight">
+                            <td><strong>REVENUE</strong></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>Platform Licensing</td>
+                            <td>₹15–20 L</td>
+                            <td>₹80–100 L</td>
+                            <td>₹2–3 Cr</td>
+                            <td>₹4–6 Cr</td>
+                            <td>₹5–8 Cr</td>
+                        </tr>
+                        <tr>
+                            <td>Deployments & Integration</td>
+                            <td>₹20–30 L</td>
+                            <td>₹1.5–2.5 Cr</td>
+                            <td>₹3–5 Cr</td>
+                            <td>₹4–7 Cr</td>
+                            <td>₹5–10 Cr</td>
+                        </tr>
+                        <tr>
+                            <td>Spin-off Equity Value</td>
+                            <td>₹10–15 L</td>
+                            <td>₹50–80 L</td>
+                            <td>₹1–2 Cr</td>
+                            <td>₹2–4 Cr</td>
+                            <td>₹3–5 Cr</td>
+                        </tr>
+                        <tr>
+                            <td>Consulting & Training</td>
+                            <td>₹5–10 L</td>
+                            <td>₹30–50 L</td>
+                            <td>₹50–80 L</td>
+                            <td>₹1–1.5 Cr</td>
+                            <td>₹1.5–2.5 Cr</td>
+                        </tr>
+                        <tr class="highlight">
+                            <td><strong>TOTAL REVENUE</strong></td>
+                            <td><strong>₹50–75 L</strong></td>
+                            <td><strong>₹3–5 Cr</strong></td>
+                            <td><strong>₹7–12 Cr</strong></td>
+                            <td><strong>₹11–18.5 Cr</strong></td>
+                            <td><strong>₹15–26 Cr</strong></td>
+                        </tr>
+                        <tr>
+                            <td colspan="6"></td>
+                        </tr>
+                        <tr class="highlight">
+                            <td><strong>OPERATING EXPENSES</strong></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>Team Salaries & Benefits</td>
+                            <td>₹1.2–1.5 Cr</td>
+                            <td>₹2–2.5 Cr</td>
+                            <td>₹3–3.8 Cr</td>
+                            <td>₹4–5 Cr</td>
+                            <td>₹5–6 Cr</td>
+                        </tr>
+                        <tr>
+                            <td>Equipment & Maintenance</td>
+                            <td>₹1.5–2 Cr</td>
+                            <td>₹50–80 L</td>
+                            <td>₹40–60 L</td>
+                            <td>₹30–50 L</td>
+                            <td>₹30–50 L</td>
+                        </tr>
+                        <tr>
+                            <td>Facility & Utilities</td>
+                            <td>₹80–100 L</td>
+                            <td>₹1–1.2 Cr</td>
+                            <td>₹1.2–1.5 Cr</td>
+                            <td>₹1.5–2 Cr</td>
+                            <td>₹2–2.5 Cr</td>
+                        </tr>
+                        <tr>
+                            <td>R&D & Prototypes</td>
+                            <td>₹1–1.5 Cr</td>
+                            <td>₹80–120 L</td>
+                            <td>₹1–1.5 Cr</td>
+                            <td>₹1.2–1.8 Cr</td>
+                            <td>₹1.5–2.5 Cr</td>
+                        </tr>
+                        <tr>
+                            <td>Marketing & Sales</td>
+                            <td>₹30–50 L</td>
+                            <td>₹50–80 L</td>
+                            <td>₹1–1.5 Cr</td>
+                            <td>₹1.5–2.5 Cr</td>
+                            <td>₹2–3 Cr</td>
+                        </tr>
+                        <tr>
+                            <td>Other OpEx (Admin, Legal, etc.)</td>
+                            <td>₹30–50 L</td>
+                            <td>₹40–60 L</td>
+                            <td>₹50–80 L</td>
+                            <td>₹1–1.5 Cr</td>
+                            <td>₹1–1.5 Cr</td>
+                        </tr>
+                        <tr class="highlight">
+                            <td><strong>TOTAL OpEx</strong></td>
+                            <td><strong>₹4.8–6.2 Cr</strong></td>
+                            <td><strong>₹5–6.8 Cr</strong></td>
+                            <td><strong>₹6.8–9.2 Cr</strong></td>
+                            <td><strong>₹9–13 Cr</strong></td>
+                            <td><strong>₹11.5–16.5 Cr</strong></td>
+                        </tr>
+                        <tr>
+                            <td colspan="6"></td>
+                        </tr>
+                        <tr class="highlight">
+                            <td><strong>EBITDA / Operating Profit</strong></td>
+                            <td><strong class="negative">–₹4–5.5 Cr</strong></td>
+                            <td><strong class="negative">–₹2–1.8 Cr</strong></td>
+                            <td><strong class="negative">–₹0.2–2 Cr</strong></td>
+                            <td><strong class="positive">+₹0.5–5.5 Cr</strong></td>
+                            <td><strong class="positive">+₹3.5–14.5 Cr</strong></td>
+                        </tr>
+                        <tr>
+                            <td>EBITDA Margin</td>
+                            <td class="negative">–80% to –100%</td>
+                            <td class="negative">–40% to –60%</td>
+                            <td class="negative">–5% to +20%</td>
+                            <td class="positive">+5% to +30%</td>
+                            <td class="positive">+20% to +55%</td>
+                        </tr>
+                        <tr>
+                            <td colspan="6"></td>
+                        </tr>
+                        <tr class="highlight">
+                            <td><strong>CUMULATIVE CASH BURN</strong></td>
+                            <td><strong>₹4–5.5 Cr</strong></td>
+                            <td><strong>₹6–7.3 Cr</strong></td>
+                            <td><strong>₹6.2–9.3 Cr</strong></td>
+                            <td><strong>₹5.7–3.8 Cr</strong></td>
+                            <td><strong>Breakeven+</strong></td>
+                        </tr>
+                        <tr>
+                            <td>Runway (Months)</td>
+                            <td>17–21 mo.</td>
+                            <td>Stabilizing</td>
+                            <td>Approaching BE</td>
+                            <td>Profitable</td>
+                            <td>Positive CF</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="grid-2">
+                <div class="card">
+                    <h3>Key Assumptions</h3>
+                    <div class="assumption-item">
+                        <span>Revenue CAGR (Y1–Y5)</span>
+                        <strong>150–200%</strong>
+                    </div>
+                    <div class="assumption-item">
+                        <span>Team Growth</span>
+                        <strong>8–12 → 35–45 people</strong>
+                    </div>
+                    <div class="assumption-item">
+                        <span>Gross Margin (Year 3+)</span>
+                        <strong>60–70%</strong>
+                    </div>
+                    <div class="assumption-item">
+                        <span>Deployed Robots/Units</span>
+                        <strong>0 → 50–80 units</strong>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Breakeven & Profitability</h3>
+                    <div class="metric">
+                        <div class="metric-label">Breakeven Month</div>
+                        <div class="metric-value">Month 26–32</div>
+                        <div class="metric-subtext">Q3–Q4 2028 (conservative)</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Cumulative Cash Needed</div>
+                        <div class="metric-value">₹8–12 Cr</div>
+                        <div class="metric-subtext">Series Seed covers 24–30 months</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="projectionChart"></canvas>
+            </div>
+        </div>
+
+        <!-- TAB 3: SCENARIO ANALYSIS -->
+        <div id="scenarios" class="tab-content">
+            <h2 class="section-title">Scenario Analysis: Conservative → Bull</h2>
+
+            <div class="scenario-toggle">
+                <button class="scenario-btn active" onclick="showScenario('conservative')">Conservative</button>
+                <button class="scenario-btn" onclick="showScenario('base')">Base Case</button>
+                <button class="scenario-btn" onclick="showScenario('bull')">Bull Case</button>
+            </div>
+
+            <div id="conservative-scenario" class="scenario-view">
+                <div class="grid-2">
+                    <div class="card">
+                        <h3>Conservative Scenario (70% Probability)</h3>
+                        <div class="metric">
+                            <div class="metric-label">Year 3 Revenue</div>
+                            <div class="metric-value">₹7–8 Cr</div>
+                            <div class="metric-subtext">Slower adoption, 1–2 pilots</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Year 5 Revenue</div>
+                            <div class="metric-value">₹15–18 Cr</div>
+                            <div class="metric-subtext">Stable but modest growth</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Exit Valuation (Year 5)</div>
+                            <div class="metric-value">₹60–90 Cr</div>
+                            <div class="metric-subtext">6–8x multiple on revenue</div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Investor Returns</h3>
+                        <div class="metric">
+                            <div class="metric-label">MOIC (5-year)</div>
+                            <div class="metric-value">1.5–2.2x</div>
+                            <div class="metric-subtext">₹12–26 Cr exit value on ₹10 Cr invested</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">IRR</div>
+                            <div class="metric-value">20–28%</div>
+                            <div class="metric-subtext">Acceptable venture return</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Exit Strategy</div>
+                            <div class="metric-value">Secondary / Acquisition</div>
+                            <div class="metric-subtext">Strategic buyer (Bosch, ABB, Kuka)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="assumption-box">
+                    <h4>Conservative Assumptions</h4>
+                    <div class="assumption-item">
+                        <span>Market Adoption Rate</span>
+                        <strong>Slower (12–18 month sales cycles)</strong>
+                    </div>
+                    <div class="assumption-item">
+                        <span>Pilot-to-Deployment Conversion</span>
+                        <strong>50–60%</strong>
+                    </div>
+                    <div class="assumption-item">
+                        <span>Spin-off Exits</span>
+                        <strong>1 successful exit</strong>
+                    </div>
+                    <div class="assumption-item">
+                        <span>Gross Margin</span>
+                        <strong>50–55%</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div id="base-scenario" class="scenario-view" style="display: none;">
+                <div class="grid-2">
+                    <div class="card">
+                        <h3>Base Case Scenario (65% Probability)</h3>
+                        <div class="metric">
+                            <div class="metric-label">Year 3 Revenue</div>
+                            <div class="metric-value">₹9–12 Cr</div>
+                            <div class="metric-subtext">Balanced growth, 2–3 pilots</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Year 5 Revenue</div>
+                            <div class="metric-value">₹18–25 Cr</div>
+                            <div class="metric-subtext">Strong market traction</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Exit Valuation (Year 5)</div>
+                            <div class="metric-value">₹108–180 Cr</div>
+                            <div class="metric-subtext">8–10x multiple on revenue</div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Investor Returns</h3>
+                        <div class="metric">
+                            <div class="metric-label">MOIC (5-year)</div>
+                            <div class="metric-value">2.7–4.5x</div>
+                            <div class="metric-subtext">₹27–54 Cr exit value on ₹10 Cr invested</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">IRR</div>
+                            <div class="metric-value">35–50%</div>
+                            <div class="metric-subtext">Strong venture return</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Exit Strategy</div>
+                            <div class="metric-value">M&A + Spin-off Exits</div>
+                            <div class="metric-subtext">IPO or strategic sale likely</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="assumption-box">
+                    <h4>Base Case Assumptions</h4>
+                    <div class="assumption-item">
+                        <span>Market Adoption Rate</span>
+                        <strong>On track (9–12 month cycles)</strong>
+                    </div>
+                    <div class="assumption-item">
+                        <span>Pilot-to-Deployment Conversion</span>
+                        <strong>65–75%</strong>
+                    </div>
+                    <div class="assumption-item">
+                        <span>Spin-off Exits</span>
+                        <strong>2 successful ventures</strong>
+                    </div>
+                    <div class="assumption-item">
+                        <span>Gross Margin</span>
+                        <strong>60–65%</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div id="bull-scenario" class="scenario-view" style="display: none;">
+                <div class="grid-2">
+                    <div class="card">
+                        <h3>Bull Case Scenario (25% Probability)</h3>
+                        <div class="metric">
+                            <div class="metric-label">Year 3 Revenue</div>
+                            <div class="metric-value">₹12–15 Cr</div>
+                            <div class="metric-subtext">Accelerated adoption, 3–5 pilots</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Year 5 Revenue</div>
+                            <div class="metric-value">₹25–35 Cr</div>
+                            <div class="metric-subtext">Rapid scale, industry standard</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Exit Valuation (Year 5)</div>
+                            <div class="metric-value">₹200–350 Cr</div>
+                            <div class="metric-subtext">10–12x multiple on revenue</div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Investor Returns</h3>
+                        <div class="metric">
+                            <div class="metric-label">MOIC (5-year)</div>
+                            <div class="metric-value">5–8.75x</div>
+                            <div class="metric-subtext">₹50–87.5 Cr exit value on ₹10 Cr invested</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">IRR</div>
+                            <div class="metric-value">60–85%</div>
+                            <div class="metric-subtext">Exceptional venture return</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Exit Strategy</div>
+                            <div class="metric-value">IPO or Mega M&A</div>
+                            <div class="metric-subtext">Global acquisition premium likely</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="assumption-box">
+                    <h4>Bull Case Assumptions</h4>
+                    <div class="assumption-item">
+                        <span>Market Adoption Rate</span>
+                        <strong>Aggressive (6–9 month cycles)</strong>
+                    </div>
+                    <div class="assumption-item">
+                        <span>Pilot-to-Deployment Conversion</span>
+                        <strong>80–90%</strong>
+                    </div>
+                    <div class="assumption-item">
+                        <span>Spin-off Exits</span>
+                        <strong>3–4 successful ventures</strong>
+                    </div>
+                    <div class="assumption-item">
+                        <span>Gross Margin</span>
+                        <strong>68–75%</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="scenarioChart"></canvas>
+            </div>
+        </div>
+
+        <!-- TAB 4: USE OF FUNDS -->
+        <div id="use-of-funds" class="tab-content">
+            <h2 class="section-title">Series Seed: ₹8–12 Crore Use of Funds</h2>
+
+            <div class="grid-3">
+                <div class="card">
+                    <h3>Equipment (30%) — ₹2.5–3.5 Cr</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="margin-bottom: 0.75rem;">• Bambu Lab X1 Carbon (₹50L)</li>
+                        <li style="margin-bottom: 0.75rem;">• CNC Machining Center (₹80L)</li>
+                        <li style="margin-bottom: 0.75rem;">• PCB Design Studio (₹30L)</li>
+                        <li style="margin-bottom: 0.75rem;">• Test & Measurement (₹50L)</li>
+                        <li style="margin-bottom: 0.75rem;">• Robotics Platform (₹60L)</li>
+                        <li style="margin-bottom: 0.75rem;">• Software licenses & compute (₹40L)</li>
+                        <li style="margin-bottom: 0.75rem;">• Installation & calibration (₹20L)</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>Team (26%) — ₹2–2.5 Cr</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="margin-bottom: 0.75rem;">• Senior Roboticists (3x, ₹1.2 Cr/yr)</li>
+                        <li style="margin-bottom: 0.75rem;">• AI/ML Engineers (3x, ₹90L/yr)</li>
+                        <li style="margin-bottom: 0.75rem;">• Hardware Engineers (2x, ₹60L/yr)</li>
+                        <li style="margin-bottom: 0.75rem;">• Operations Manager (₹30L/yr)</li>
+                        <li style="margin-bottom: 0.75rem;">• Salaries + Benefits (Year 1)</li>
+                        <li style="margin-bottom: 0.75rem;">• ESOP allocation (10%)</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>Facility (20%) — ₹1.5–2.5 Cr</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="margin-bottom: 0.75rem;">• Lab lease (2000 sq ft, 36 mo)</li>
+                        <li style="margin-bottom: 0.75rem;">• Infrastructure setup (₹40L)</li>
+                        <li style="margin-bottom: 0.75rem;">• Climate control & safety (₹20L)</li>
+                        <li style="margin-bottom: 0.75rem;">• Utilities & operations (₹15L/yr)</li>
+                        <li style="margin-bottom: 0.75rem;">• Testbed environment</li>
+                        <li style="margin-bottom: 0.75rem;">• Security & insurance</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>Prototypes (15%) — ₹1–1.5 Cr</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="margin-bottom: 0.75rem;">• First 3 working prototypes</li>
+                        <li style="margin-bottom: 0.75rem;">• Sensor integration</li>
+                        <li style="margin-bottom: 0.75rem;">• Field trials & validation</li>
+                        <li style="margin-bottom: 0.75rem;">• Iteration cycles (5–8)</li>
+                        <li style="margin-bottom: 0.75rem;">• Parts & materials (₹60L)</li>
+                        <li style="margin-bottom: 0.75rem;">• Testing facilities</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>Pilots (13%) — ₹0.8–1.5 Cr</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="margin-bottom: 0.75rem;">• 2–3 customer pilots</li>
+                        <li style="margin-bottom: 0.75rem;">• Field deployment support</li>
+                        <li style="margin-bottom: 0.75rem;">• Customer success team</li>
+                        <li style="margin-bottom: 0.75rem;">• Integration engineering</li>
+                        <li style="margin-bottom: 0.75rem;">• Documentation & training</li>
+                        <li style="margin-bottom: 0.75rem;">• Travel & logistics</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>Working Capital (Contingency)</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="margin-bottom: 0.75rem;">• 3–6 month runway buffer</li>
+                        <li style="margin-bottom: 0.75rem;">• Unexpected expenses</li>
+                        <li style="margin-bottom: 0.75rem;">• Vendor deposits</li>
+                        <li style="margin-bottom: 0.75rem;">• Legal & compliance</li>
+                        <li style="margin-bottom: 0.75rem;">• Board & advisory support</li>
+                        <li style="margin-bottom: 0.75rem;">• Flexibility for opportunities</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="fundAllocationChart"></canvas>
+            </div>
+
+            <div class="footer-note">
+                <strong>Milestone-Based Tranches:</strong> Funds released in 3 tranches tied to technical milestones (Tranche 1: ₹3 Cr upon signing; Tranche 2: ₹3–4 Cr at prototype validation; Tranche 3: ₹2–3 Cr at first pilot deployment).
+            </div>
+        </div>
+
+        <!-- TAB 5: KEY METRICS -->
+        <div id="metrics" class="tab-content">
+            <h2 class="section-title">Key Performance Indicators (KPIs) & Monitoring</h2>
+
+            <div class="grid-2">
+                <div class="card">
+                    <h3>Technical KPIs</h3>
+                    <div class="assumption-item">
+                        <span>Prototype Cycle Time</span>
+                        <strong>4–6 weeks target</strong>
+                    </div>
+                    <div class="assumption-item">
+                        <span>Time-to-Market (Full Stack)</span>
+                        <strong>12–18 months first system</strong>
+                    </div>
+                    <div class="assumption-item">
+                        <span>Platform Uptime</span>
+                        <strong>99%+ reliability</strong>
+                    </div>
+                    <div class="assumption-item">
+                        <span>Robot Unit Cost Reduction</span>
+                        <strong>15–20% YoY improvement</strong>
+                    </div>
+                    <div class="assumption-item">
+                        <span>Sensor Accuracy</span>
+                        <strong>±2cm within 10m range</strong>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Commercial KPIs</h3>
+                    <div class="assumption-item">
+                        <span>Pilot-to-Customer Conversion</span>
+                        <strong>Target: 65–75%</strong>
+                    </div>
+                    <div class="assumption-item">
+                        <span>Average Contract Value</span>
+                        <strong>₹50L–₹2 Cr per deployment</strong>
+                    </div>
+                    <div class="assumption-item">
+                        <span>Customer Acquisition Cost</span>
+                        <strong>&lt; ₹10L per customer (Year 2+)</strong>
+                    </div>
+                    <div class="assumption-item">
+                        <span>Customer Lifetime Value</span>
+                        <strong>&gt; ₹1 Cr (3-year horizon)</strong>
+                    </div>
+                    <div class="assumption-item">
+                        <span>MRR Growth Rate</span>
+                        <strong>10–15% month-on-month (Year 2–3)</strong>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Financial KPIs</h3>
+                    <div class="assumption-item">
+                        <span>Gross Margin</span>
+                        <strong>Target: 60–70% (Year 3+)</strong>
+                    </div>
+                    <div class="assumption-item">
+                        <span>Burn Rate (Year 1)</span>
+                        <strong>₹40–50L monthly peak</strong>
+                    </div>
+                    <div class="assumption-item">
+                        <span>Runway</span>
+                        <strong>24+ months post-funding</strong>
+                    </div>
+                    <div class="assumption-item">
+                        <span>Breakeven Timeline</span>
+                        <strong>Month 26–32 (Q3–Q4 2028)</strong>
+                    </div>
+                    <div class="assumption-item">
+                        <span>Operating Leverage</span>
+                        <strong>OpEx/Revenue: 150% → 65% (Y1→Y5)</strong>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Operational KPIs</h3>
+                    <div class="assumption-item">
+                        <span>Team Size</span>
+                        <strong>8–12 → 35–45 people</strong>
+                    </div>
+                    <div class="assumption-item">
+                        <span>Deployed Units</span>
+                        <strong>0 → 50–80 by Year 5</strong>
+                    </div>
+                    <div class="assumption-item">
+                        <span>Spin-off Ventures</span>
+                        <strong>Target: 3–5 by Year 5</strong>
+                    </div>
+                    <div class="assumption-item">
+                        <span>IP Patents Filed</span>
+                        <strong>Target: 5–8 core patents</strong>
+                    </div>
+                    <div class="assumption-item">
+                        <span>Academic Collaborations</span>
+                        <strong>Target: 2–4 institutional partnerships</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Monthly Reporting Dashboard (Board & Investors)</h3>
+                <div style="margin-top: 1rem;">
+                    <p style="color: #cbd5e1; margin-bottom: 0.75rem;"><strong>Finance:</strong> Actuals vs. Budget, Burn Rate, Runway, ARR, MRR</p>
+                    <p style="color: #cbd5e1; margin-bottom: 0.75rem;"><strong>Product:</strong> Sprint progress, Prototype releases, Test results</p>
+                    <p style="color: #cbd5e1; margin-bottom: 0.75rem;"><strong>Sales:</strong> Pilot pipeline, Conversions, Customer satisfaction NPS</p>
+                    <p style="color: #cbd5e1; margin-bottom: 0.75rem;"><strong>Operational:</strong> Team hires, Turnover, Culture metrics</p>
+                    <p style="color: #cbd5e1; margin-bottom: 0;"><strong>Strategic:</strong> Market indicators, Competitive moves, Pivot recommendations</p>
+                </div>
+            </div>
+
+            <div class="footer-note">
+                <strong>Reporting Cadence:</strong> Monthly investor updates, Quarterly board meetings, Annual strategic review. Real-time KPI dashboard access to all stakeholders (investors, advisors, board).
+            </div>
+        </div>
+
+        <!-- TAB 6: COMPETITOR ANALYSIS -->
+        <div id="competitors" class="tab-content">
+            <h2 class="section-title">Competitive Landscape & Market Positioning</h2>
+
+            <div class="grid-3">
+                <div class="stat-card">
+                    <div class="stat-label">Market Position</div>
+                    <div class="stat-number">#3</div>
+                    <div class="stat-label">Emerging Player</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Technology Advantage</div>
+                    <div class="stat-number">85%</div>
+                    <div class="stat-label">vs Competitors</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Cost Efficiency</div>
+                    <div class="stat-number">40%</div>
+                    <div class="stat-label">Lower than Avg</div>
+                </div>
+            </div>
+
+            <div class="table-scroll">
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Company</th>
+                            <th>Valuation (₹ Cr)</th>
+                            <th>Revenue (₹ Cr)</th>
+                            <th>Funding Raised</th>
+                            <th>Market Focus</th>
+                            <th>Technology</th>
+                            <th>Year Founded</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="highlight-cell">
+                            <td><strong>Solinexta</strong></td>
+                            <td><strong>₹11.2-16.5 Cr</strong></td>
+                            <td><strong>₹0.5-0.75 Cr</strong></td>
+                            <td><strong>₹8-12 Cr (Seed)</strong></td>
+                            <td><strong>Robotics Platform</strong></td>
+                            <td><strong>Deep-Tech IP</strong></td>
+                            <td><strong>2024</strong></td>
+                        </tr>
+                        <tr>
+                            <td>ideaForge</td>
+                            <td>₹2,500 Cr</td>
+                            <td>₹250 Cr</td>
+                            <td>₹500 Cr</td>
+                            <td>Drone Solutions</td>
+                            <td>Autonomous Systems</td>
+                            <td>2007</td>
+                        </tr>
+                        <tr>
+                            <td>Cygni Energy</td>
+                            <td>₹800 Cr</td>
+                            <td>₹120 Cr</td>
+                            <td>₹200 Cr</td>
+                            <td>Energy Storage</td>
+                            <td>Battery Tech</td>
+                            <td>2015</td>
+                        </tr>
+                        <tr>
+                            <td>GreyOrange</td>
+                            <td>₹3,200 Cr</td>
+                            <td>₹450 Cr</td>
+                            <td>₹1,200 Cr</td>
+                            <td>Warehouse Robotics</td>
+                            <td>AI + Robotics</td>
+                            <td>2011</td>
+                        </tr>
+                        <tr>
+                            <td>Asimov Robotics</td>
+                            <td>₹150 Cr</td>
+                            <td>₹25 Cr</td>
+                            <td>₹80 Cr</td>
+                            <td>Service Robotics</td>
+                            <td>Humanoid Robots</td>
+                            <td>2017</td>
+                        </tr>
+                        <tr>
+                            <td>Systemantics</td>
+                            <td>₹400 Cr</td>
+                            <td>₹60 Cr</td>
+                            <td>₹150 Cr</td>
+                            <td>Industrial Automation</td>
+                            <td>Custom Solutions</td>
+                            <td>2012</td>
+                        </tr>
+                        <tr>
+                            <td>Addverb Technologies</td>
+                            <td>₹1,800 Cr</td>
+                            <td>₹280 Cr</td>
+                            <td>₹600 Cr</td>
+                            <td>Logistics Automation</td>
+                            <td>Mobile Robots</td>
+                            <td>2016</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 class="section-title">Competitive Advantages</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h3>Technology Differentiation</h3>
+                    <div class="assumption-item">
+                        <span>Platform Approach</span>
+                        <strong>Unique Multi-Use Model</strong>
+                    </div>
+                    <div class="assumption-item">
+                        <span>IP Portfolio</span>
+                        <strong>5-8 Core Patents (Target)</strong>
+                    </div>
+                    <div class="assumption-item">
+                        <span>Cost Structure</span>
+                        <strong>40% Lower than Competitors</strong>
+                    </div>
+                    <div class="assumption-item">
+                        <span>Time to Market</span>
+                        <strong>12-18 Months (Faster)</strong>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Market Positioning</h3>
+                    <div class="assumption-item">
+                        <span>Target Market</span>
+                        <strong>B2B Industrial & Commercial</strong>
+                    </div>
+                    <div class="assumption-item">
+                        <span>Pricing Strategy</span>
+                        <strong>Competitive + Value-Based</strong>
+                    </div>
+                    <div class="assumption-item">
+                        <span>Go-to-Market</span>
+                        <strong>Pilot → License → Deploy</strong>
+                    </div>
+                    <div class="assumption-item">
+                        <span>Competitive Moat</span>
+                        <strong>IP + Platform Network Effects</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="competitorValuationChart"></canvas>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="marketShareChart"></canvas>
+            </div>
+
+            <h3 class="section-title">Business Model Comparison</h3>
+            <div class="diagram-container">
+                <div class="flow-diagram">
+                    <div class="flow-box">Platform Licensing</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-box">Deployments</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-box">Spin-off Equity</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-box">Recurring Revenue</div>
+                </div>
+                <p style="text-align: center; color: #cbd5e1; margin-top: 1rem;">
+                    <strong>Solinexta's Unique Multi-Stream Revenue Model</strong> vs Traditional Single-Product Approach
+                </p>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="revenueComparisonChart"></canvas>
+            </div>
+
+            <div class="card">
+                <h3>Key Competitive Metrics</h3>
+                <div class="grid-2">
+                    <div>
+                        <div class="assumption-item">
+                            <span>Valuation Multiple (vs Revenue)</span>
+                            <strong>8-12x (Industry: 6-10x)</strong>
+                        </div>
+                        <div class="assumption-item">
+                            <span>Gross Margin Target</span>
+                            <strong>60-70% (Industry: 45-55%)</strong>
+                        </div>
+                        <div class="assumption-item">
+                            <span>Customer Acquisition Cost</span>
+                            <strong>₹8-10L (Industry: ₹15-20L)</strong>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="assumption-item">
+                            <span>Time to First Revenue</span>
+                            <strong>6-9 Months (Industry: 12-18)</strong>
+                        </div>
+                        <div class="assumption-item">
+                            <span>Pilot Conversion Rate</span>
+                            <strong>65-75% (Industry: 40-50%)</strong>
+                        </div>
+                        <div class="assumption-item">
+                            <span>R&D as % of Revenue</span>
+                            <strong>25-30% (Industry: 15-20%)</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tabName) {
+            // Hide all tabs
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.remove('active'));
+
+            // Remove active class from all buttons
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+
+            // Add active class to clicked button
+            event.target.classList.add('active');
+
+            // Redraw charts when switching
+            setTimeout(() => {
+                if (tabName === 'projections') {
+                    projectionChart.resize();
+                    projectionChart.update();
+                } else if (tabName === 'scenarios') {
+                    scenarioChart.resize();
+                    scenarioChart.update();
+                } else if (tabName === 'use-of-funds') {
+                    fundChart.resize();
+                    fundChart.update();
+                } else if (tabName === 'competitors') {
+                    competitorValuationChart.resize();
+                    competitorValuationChart.update();
+                    marketShareChart.resize();
+                    marketShareChart.update();
+                    revenueComparisonChart.resize();
+                    revenueComparisonChart.update();
+                }
+            }, 100);
+        }
+
+        function showScenario(scenario) {
+            // Hide all scenarios
+            document.getElementById('conservative-scenario').style.display = 'none';
+            document.getElementById('base-scenario').style.display = 'none';
+            document.getElementById('bull-scenario').style.display = 'none';
+
+            // Remove active from all buttons
+            document.querySelectorAll('.scenario-btn').forEach(btn => btn.classList.remove('active'));
+
+            // Show selected scenario
+            document.getElementById(scenario + '-scenario').style.display = 'block';
+            event.target.classList.add('active');
+
+            // Update scenario chart
+            setTimeout(() => {
+                updateScenarioChart(scenario);
+            }, 100);
+        }
+
+        // Projection Chart
+        const projectionCtx = document.getElementById('projectionChart').getContext('2d');
+        const projectionChart = new Chart(projectionCtx, {
+            type: 'bar',
+            data: {
+                labels: ['2026', '2027', '2028', '2029', '2030'],
+                datasets: [
+                    {
+                        label: 'Revenue (₹ Cr) - Base Case',
+                        data: [0.6, 4, 9.5, 14.75, 20.5],
+                        backgroundColor: '#38bdf8',
+                        borderRadius: 6,
+                        borderSkipped: false,
+                    },
+                    {
+                        label: 'Operating Costs (₹ Cr)',
+                        data: [5.5, 5.9, 8, 11, 14],
+                        backgroundColor: '#ef4444',
+                        borderRadius: 6,
+                        borderSkipped: false,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#cbd5e1',
+                            font: { size: 12 }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { color: '#cbd5e1' },
+                        grid: { color: '#334155' },
+                        title: {
+                            display: true,
+                            text: 'Amount (₹ Crore)'
+                        }
+                    },
+                    x: {
+                        ticks: { color: '#cbd5e1' },
+                        grid: { color: '#334155' }
+                    }
+                }
+            }
+        });
+
+        // Scenario Chart
+        const scenarioCtx = document.getElementById('scenarioChart').getContext('2d');
+        let scenarioChart = new Chart(scenarioCtx, {
+            type: 'line',
+            data: {
+                labels: ['Year 1', 'Year 2', 'Year 3', 'Year 4', 'Year 5'],
+                datasets: [
+                    {
+                        label: 'Conservative (₹ Cr)',
+                        data: [0.6, 2.5, 7.5, 11.25, 16.5],
+                        borderColor: '#ef4444',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 5,
+                        pointBackgroundColor: '#ef4444'
+                    },
+                    {
+                        label: 'Base Case (₹ Cr)',
+                        data: [0.6, 4, 9.5, 14.75, 20.5],
+                        borderColor: '#38bdf8',
+                        backgroundColor: 'rgba(56, 189, 248, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 5,
+                        pointBackgroundColor: '#38bdf8'
+                    },
+                    {
+                        label: 'Bull Case (₹ Cr)',
+                        data: [0.8, 5.5, 13.5, 19.5, 30],
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 5,
+                        pointBackgroundColor: '#10b981'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#cbd5e1',
+                            font: { size: 12 }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { color: '#cbd5e1' },
+                        grid: { color: '#334155' }
+                    },
+                    x: {
+                        ticks: { color: '#cbd5e1' },
+                        grid: { color: '#334155' }
+                    }
+                }
+            }
+        });
+
+        function updateScenarioChart(scenario) {
+            // Update chart data based on selected scenario
+            // This would update the data shown
+        }
+
+        // Fund Allocation Chart
+        const fundCtx = document.getElementById('fundAllocationChart').getContext('2d');
+        const fundChart = new Chart(fundCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Equipment (30%)', 'Team (26%)', 'Facility (20%)', 'Prototypes (15%)', 'Pilots (13%)'],
+                datasets: [{
+                    data: [30, 26, 20, 15, 13],
+                    backgroundColor: [
+                        '#38bdf8',
+                        '#10b981',
+                        '#f59e0b',
+                        '#8b5cf6',
+                        '#ec4899'
+                    ],
+                    borderColor: '#0f172a',
+                    borderWidth: 3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#cbd5e1',
+                            font: { size: 11 },
+                            padding: 20
+                        }
+                    }
+                }
+            }
+        });
+
+        // Competitor Valuation Chart
+        const competitorValuationCtx = document.getElementById('competitorValuationChart').getContext('2d');
+        const competitorValuationChart = new Chart(competitorValuationCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Solinexta', 'ideaForge', 'Cygni Energy', 'GreyOrange', 'Asimov', 'Systemantics', 'Addverb'],
+                datasets: [{
+                    label: 'Valuation (₹ Cr)',
+                    data: [14, 2500, 800, 3200, 150, 400, 1800],
+                    backgroundColor: [
+                        '#38bdf8',
+                        '#10b981',
+                        '#f59e0b',
+                        '#8b5cf6',
+                        '#ec4899',
+                        '#06b6d4',
+                        '#84cc16'
+                    ],
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#cbd5e1',
+                            font: { size: 12 }
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Company Valuations Comparison',
+                        color: '#38bdf8',
+                        font: { size: 16 }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { color: '#cbd5e1' },
+                        grid: { color: '#334155' }
+                    },
+                    x: {
+                        ticks: { color: '#cbd5e1' },
+                        grid: { color: '#334155' }
+                    }
+                }
+            }
+        });
+
+        // Market Share Chart
+        const marketShareCtx = document.getElementById('marketShareChart').getContext('2d');
+        const marketShareChart = new Chart(marketShareCtx, {
+            type: 'pie',
+            data: {
+                labels: ['GreyOrange', 'ideaForge', 'Addverb', 'Systemantics', 'Cygni', 'Asimov', 'Solinexta', 'Others'],
+                datasets: [{
+                    data: [28, 18, 15, 8, 7, 5, 2, 17],
+                    backgroundColor: [
+                        '#8b5cf6',
+                        '#10b981',
+                        '#84cc16',
+                        '#06b6d4',
+                        '#f59e0b',
+                        '#ec4899',
+                        '#38bdf8',
+                        '#64748b'
+                    ],
+                    borderColor: '#0f172a',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#cbd5e1',
+                            font: { size: 11 },
+                            padding: 15
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Indian Robotics Market Share (%)',
+                        color: '#38bdf8',
+                        font: { size: 16 }
+                    }
+                }
+            }
+        });
+
+        // Revenue Comparison Chart
+        const revenueComparisonCtx = document.getElementById('revenueComparisonChart').getContext('2d');
+        const revenueComparisonChart = new Chart(revenueComparisonCtx, {
+            type: 'line',
+            data: {
+                labels: ['Year 1', 'Year 2', 'Year 3', 'Year 4', 'Year 5'],
+                datasets: [
+                    {
+                        label: 'Solinexta (Projected)',
+                        data: [0.6, 4, 9.5, 14.75, 20.5],
+                        borderColor: '#38bdf8',
+                        backgroundColor: 'rgba(56, 189, 248, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 6,
+                        pointBackgroundColor: '#38bdf8',
+                        borderWidth: 3
+                    },
+                    {
+                        label: 'Industry Average',
+                        data: [0.2, 1.5, 4, 7, 12],
+                        borderColor: '#64748b',
+                        backgroundColor: 'rgba(100, 116, 139, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#64748b',
+                        borderDash: [5, 5]
+                    },
+                    {
+                        label: 'Top Competitor (GreyOrange)',
+                        data: [50, 120, 250, 380, 450],
+                        borderColor: '#8b5cf6',
+                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                        tension: 0.4,
+                        fill: false,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#8b5cf6'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#cbd5e1',
+                            font: { size: 12 }
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Revenue Growth Comparison (₹ Cr)',
+                        color: '#38bdf8',
+                        font: { size: 16 }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { color: '#cbd5e1' },
+                        grid: { color: '#334155' },
+                        title: {
+                            display: true,
+                            text: 'Revenue (₹ Crore)',
+                            color: '#cbd5e1'
+                        }
+                    },
+                    x: {
+                        ticks: { color: '#cbd5e1' },
+                        grid: { color: '#334155' }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
